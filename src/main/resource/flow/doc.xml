@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+	<!-- 文档写法摘录 -->
+	<var name="book" class="com.wx.study.Book" />
+
+	<input name="hotelId" />
+
+	<on-start>
+		<evaluate expression="bookingService.createBooking(hotelId, currentUser.name)"
+			result="flowScope.booking" />
+	</on-start>
+
+	<view-state id="enterBookingDetails">
+		<transition on="submit" to="reviewBooking" />
+	</view-state>
+
+	<view-state id="reviewBooking">
+		<transition on="confirm" to="bookingConfirmed" />
+		<transition on="revise" to="enterBookingDetails" />
+		<transition on="cancel" to="bookingCancelled" />
+	</view-state>
+
+	<subflow-state id="addGuest" subflow="createGuest">
+		<transition on="guestCreated" to="reviewBooking">
+			<evaluate expression="booking.guests.add(currentEvent.attributes.guest)" />
+		</transition>
+		<transition on="creationCancelled" to="reviewBooking" />
+	</subflow-state>
+
+	<subflow-state id="addGuest2" subflow="createGuest">
+		<input name="booking" />
+		<transition to="reviewBooking" />
+	</subflow-state>
+
+	<end-state id="bookingConfirmed">
+		<output name="bookingId" value="booking.id" />
+	</end-state>
+
+	<end-state id="bookingCancelled" />
+</flow>

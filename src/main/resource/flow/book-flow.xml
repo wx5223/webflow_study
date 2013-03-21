@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+	<on-start>
+		<evaluate expression="bookService.init()" />
+	</on-start>
+	<view-state id="viewBook">
+		<on-render>
+			<evaluate expression="bookService.list()" result="viewScope.books"></evaluate>
+			<evaluate expression="cartService.list()" result="viewScope.carts"></evaluate>
+		</on-render>
+		<transition on="submit" to="reviewBooking" />
+		<transition on="addOrder" to="addOrder"/>
+		<transition on="addToCart" to="viewBook">
+			<evaluate expression="cartService.add(bookService.getById(requestParameters.bookId))"/>
+		</transition>
+		<transition on="dropOrder" to="viewBook">
+			<evaluate expression="cartService.remove(requestParameters.orderId)"/>
+		</transition>
+	</view-state>
+	<subflow-state id="addOrder" subflow="order-flow">
+		<transition on="end" to="viewBook"></transition>
+	</subflow-state>
+
+	<end-state id="end" />
+</flow>

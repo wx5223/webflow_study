@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+                          http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd">
+	<var name="order" class="com.wx.study.Order"/>
+	<on-start>
+		<evaluate expression="bookService.getById(requestParameters.bookId)" result="flowScope.order.book" />
+	</on-start>
+	
+	<view-state id="enterOrder" model="order">
+		<binder>
+			<binding property="size"/>
+		</binder>
+		<transition on="viewOrder" to="viewOrder" />
+		<transition on="cancel" to="end" />
+	</view-state>
+	<view-state id="viewOrder" model="order">
+		<transition on="confirm" to="end">
+			<evaluate expression="cartService.add(order)" />
+		</transition>
+		<transition on="revise" to="enterOrder" />
+		<transition on="cancel" to="end" />
+	</view-state>
+
+	<end-state id="end" />
+</flow>
